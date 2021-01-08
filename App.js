@@ -1,50 +1,38 @@
-import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Button,
-  Text,
-  TextInput,
-  ScrollView,
-  FlatList,
-} from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View, FlatList, Button } from "react-native";
+import GoalInput from "./components/GoalInput";
+import GoalItem from "./components/GoalItem";
 
 export default function App() {
-  const [enteredGoal, setEnteredGoal] = useState("");
   const [courseGoals, setCourseGoals] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {}, []);
-
-  const goalInputHandler = (enteredText) => {
-    setEnteredGoal(enteredText);
-  };
-
-  const addCourseGoal = () => {
+  const addCourseGoal = (goalTitle) => {
     setCourseGoals((currentGoals) => [
       ...currentGoals,
-      { key: Math.random().toString, value: enteredGoal },
+      { id: Math.random().toString(), value: goalTitle },
     ]);
   };
 
+  const handleOnDelete = (goalId) => {
+    setCourseGoals((currentGoals) => {
+      return currentGoals.filter((goal) => goal.id != goalId);
+    });
+  };
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder={"input here"}
-          style={styles.input}
-          onChangeText={goalInputHandler}
-          value={enteredGoal}
-        />
-        <Button title="Change Text" onPress={addCourseGoal} />
-      </View>
+      <Button title="Add New Goal" onPress={() => setModalOpen(!modalOpen)} />
+      <GoalInput
+        visible={modalOpen}
+        closeModal={() => setModalOpen(!modalOpen)}
+        onAddGoal={addCourseGoal}
+      />
       <FlatList
         data={courseGoals}
         renderItem={(itemData) => (
-          <View style={styles.listItem}>
-            <Text>{itemData.item.value}</Text>
-          </View>
+          <GoalItem onDelete={handleOnDelete} goal={itemData.item} />
         )}
-      ></FlatList>
+      />
     </View>
   );
 }
@@ -52,24 +40,5 @@ export default function App() {
 const styles = StyleSheet.create({
   screen: {
     padding: 50,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  input: {
-    width: "60%",
-    borderColor: "black",
-    borderWidth: 1,
-    padding: 10,
-  },
-  listItem: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: "#ccc",
-    borderColor: "black",
-    borderWidth: 1,
   },
 });
